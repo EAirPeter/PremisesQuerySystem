@@ -1,4 +1,4 @@
-// Resources.h
+// Localization.h
 // Strings displayed on GUIs
 
 #ifndef PQS_LOCALIZATION_H_
