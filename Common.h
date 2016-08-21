@@ -4,7 +4,7 @@
 #ifndef PQS_COMMON_H_
 #define PQS_COMMON_H_
 
-// Ensures the program is compiled under Unicode environment.
+// Ensures that the program is compiled under Unicode environment.
 #ifndef UNICODE
 #   define UNICODE
 #endif // ifndef UNICODE
