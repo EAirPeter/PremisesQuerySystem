@@ -156,8 +156,10 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wpar, LPARAM lpar) {
         GuiOnSize(hWnd);
         break;
     case WM_CLOSE:
-        if (MbQuestion(IDS_MSGQ_EXIT, hWnd) == IDYES)
+        if (MbQuestion(IDS_MSGQ_EXIT, hWnd) == IDYES) {
+            GuiSave(hWnd);
             DestroyWindow(hWnd);
+        }
         break;
     case WM_NOTIFY:
         GuiOnNotify(hWnd, (LPNMHDR) lpar);

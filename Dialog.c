@@ -146,23 +146,17 @@ BOOL DlgCreateDtBld(LPDLGTEMPLATEW *ppDt) {
 }
 
 BOOL DlgCreateDtRom(LPDLGTEMPLATEW *ppDt) {
-    DlgFillDt(L"", 0, 0, 134, 217);
+    DlgFillDt(L"", 0, 0, 134, 136);
     DlgStc(IDC_DLGROM_SNUM, IDS_DLGROM_NUM, 7, 7, 120, 8);
     DlgEdt(IDC_DLGROM_ENUM, L"", 7, 19, 120, 8);
     DlgStc(IDC_DLGROM_STYP, IDS_DLGROM_TYP, 7, 34, 120, 8);
     DlgEdt(IDC_DLGROM_ETYP, L"", 7, 46, 120, 8);
     DlgStc(IDC_DLGROM_SARE, IDS_DLGROM_ARE, 7, 61, 120, 8);
     DlgEdt(IDC_DLGROM_EARE, L"", 7, 73, 120, 8);
-    DlgStc(IDC_DLGROM_SSHR, IDS_DLGROM_SHR, 7, 88, 120, 8);
-    DlgEdt(IDC_DLGROM_ESHR, L"", 7, 100, 120, 8);
-    DlgStc(IDC_DLGROM_SPRI, IDS_DLGROM_PRI, 7, 115, 120, 8);
-    DlgEdt(IDC_DLGROM_EPRI, L"", 7, 127, 120, 8);
-    DlgStc(IDC_DLGROM_SUNT, IDS_DLGROM_UNT, 7, 142, 120, 8);
-    DlgEdt(IDC_DLGROM_EUNT, L"", 7, 154, 120, 8);
-    DlgStc(IDC_DLGROM_SFLR, IDS_DLGROM_FLR, 7, 169, 120, 8);
-    DlgEdt(IDC_DLGROM_EFLR, L"", 7, 181, 120, 8);
-    DlgBtn(IDOK, IDS_DLG_BOK, TRUE, 35, 196, 44, 14);
-    DlgBtn(IDCANCEL, IDS_DLG_BCA, FALSE, 83, 196, 44, 14);
+    DlgStc(IDC_DLGROM_SPRI, IDS_DLGROM_PRI, 7, 88, 120, 8);
+    DlgEdt(IDC_DLGROM_EPRI, L"", 7, 100, 120, 8);
+    DlgBtn(IDOK, IDS_DLG_BOK, TRUE, 35, 115, 44, 14);
+    DlgBtn(IDCANCEL, IDS_DLG_BCA, FALSE, 83, 115, 44, 14);
     *ppDt = DlgFinalize();
     return TRUE;
 }

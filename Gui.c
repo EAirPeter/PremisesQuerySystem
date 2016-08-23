@@ -342,9 +342,9 @@ BOOL CreateListViewPrm(HWND hWnd) {
     LVCOLUMNW lvc;
     lvc.mask = LVCF_TEXT | LVCF_SUBITEM | LVCF_WIDTH;
     lvc.pszText = szText;
-    LvInsCol(0, 80, IDS_LVPRM_NUM);
-    LvInsCol(1, 240, IDS_LVPRM_NAM);
-    LvInsCol(2, 240, IDS_LVPRM_ADD);
+    LvInsCol(0, 60, IDS_LVPRM_NUM);
+    LvInsCol(1, 120, IDS_LVPRM_NAM);
+    LvInsCol(2, 480, IDS_LVPRM_ADD);
     LvInsCol(3, 240, IDS_LVPRM_DEV);
     LvInsCol(4, 240, IDS_LVPRM_PMC);
     LvInsCol(5, 80, IDS_LVPRM_BLD);
@@ -365,12 +365,12 @@ BOOL CreateListViewBld(HWND hWnd) {
     LVCOLUMNW lvc;
     lvc.mask = LVCF_TEXT | LVCF_SUBITEM | LVCF_WIDTH;;
     lvc.pszText = szText;
-    LvInsCol(0, 80, IDS_LVBLD_NUM);
-    LvInsCol(1, 240, IDS_LVBLD_NAM);
+    LvInsCol(0, 60, IDS_LVBLD_NUM);
+    LvInsCol(1, 100, IDS_LVBLD_NAM);
     LvInsCol(2, 80, IDS_LVBLD_UNT);
     LvInsCol(3, 80, IDS_LVBLD_FLR);
     LvInsCol(4, 80, IDS_LVBLD_ROM);
-    LvInsCol(5, 240, IDS_LVBLD_PRM);
+    LvInsCol(5, 140, IDS_LVBLD_PRM);
     s_gtBld->hWndLv = hWndLv;
     return TRUE;
 
@@ -387,15 +387,12 @@ BOOL CreateListViewRom(HWND hWnd) {
     LVCOLUMNW lvc;
     lvc.mask = LVCF_TEXT | LVCF_SUBITEM | LVCF_WIDTH;;
     lvc.pszText = szText;
-    LvInsCol(0, 80, IDS_LVROM_NUM);
-    LvInsCol(1, 80, IDS_LVROM_TYP);
-    LvInsCol(2, 80, IDS_LVROM_ARE);
-    LvInsCol(3, 80, IDS_LVROM_SHR);
-    LvInsCol(4, 80, IDS_LVROM_PRI);
-    LvInsCol(5, 80, IDS_LVROM_UNT);
-    LvInsCol(6, 80, IDS_LVROM_FLR);
-    LvInsCol(7, 240, IDS_LVROM_BLD);
-    LvInsCol(8, 240, IDS_LVROM_PRM);
+    LvInsCol(0, 60, IDS_LVROM_NUM);
+    LvInsCol(1, 240, IDS_LVROM_TYP);
+    LvInsCol(2, 120, IDS_LVROM_ARE);
+    LvInsCol(3, 120, IDS_LVROM_PRI);
+    LvInsCol(4, 120, IDS_LVROM_BLD);
+    LvInsCol(5, 140, IDS_LVROM_PRM);
     s_gtRom->hWndLv = hWndLv;
     return TRUE;
 
@@ -497,16 +494,10 @@ void AddRoms(void) {
         ListView_SetItemText(hWnd, cItem, 2,
             StrFmt(L"%.2f", p->dArea));
         ListView_SetItemText(hWnd, cItem, 3,
-            StrFmt(L"%.2f", p->dShared));
-        ListView_SetItemText(hWnd, cItem, 4,
             StrFmt(L"%.2f", p->dPrice));
-        ListView_SetItemText(hWnd, cItem, 5,
-            StrFmt(L"%lu", (ULONG) p->dwUnit));
-        ListView_SetItemText(hWnd, cItem, 6,
-            StrFmt(L"%lu", (ULONG) p->dwFloor));
-        ListView_SetItemText(hWnd, cItem, 7, StrFmt(L"(%lu)%s",
+        ListView_SetItemText(hWnd, cItem, 4, StrFmt(L"(%lu)%s",
             (ULONG) p->pBld->dwNum, p->pBld->szName));
-        ListView_SetItemText(hWnd, cItem, 8, StrFmt(L"(%lu)%s",
+        ListView_SetItemText(hWnd, cItem, 5, StrFmt(L"(%lu)%s",
             (ULONG) p->pBld->pPrm->dwNum, p->pBld->pPrm->szName));
         ++cItem;
     }
@@ -741,23 +732,14 @@ void OnNmLvColumnClick(HWND hWnd, LPNMHDR pHdr) {
         case 3: // dArea
             LvSort(ObjCmpNndbl, ROOM, dArea);
             break;
-        case 4: // dShared
-            LvSort(ObjCmpNndbl, ROOM, dShared);
-            break;
-        case 5: // dPrice
+        case 4: // dPrice
             LvSort(ObjCmpNndbl, ROOM, dPrice);
             break;
-        case 6: // dwUnit
-            LvSort(ObjCmpDword, ROOM, dwUnit);
-            break;
-        case 7: // dwFloor
-            LvSort(ObjCmpDword, ROOM, dwFloor);
-            break;
-        case 8: // pBld->dwNum
+        case 5: // pBld->dwNum
             ci.uOffset2 = offsetof(BUILDING, dwNum);
             LvSort(ObjCmpDwLv2, ROOM, pBld);
             break;
-        case 9: // pBld->pPrm->dwNum
+        case 6: // pBld->pPrm->dwNum
             ci.uOffset3 = offsetof(PREMISES, dwNum);
             ci.uOffset2 = offsetof(BUILDING, pPrm);
             LvSort(ObjCmpDwLv3, ROOM, pBld);
@@ -949,47 +931,33 @@ void OnCmdPmSublist(HWND hWnd) {
 
 void OnCmdPmParent(HWND hWnd) {
     LPARAM lpar = CurItem();
-    LVFINDINFOW lvfi;
-    lvfi.flags = LVFI_PARAM;
+    ULONG id;
     switch (s_gtCur->gs) {
     case GS_PRM:
         return;
     case GS_BLD:
-        GuiSwitch(hWnd, GS_PRM, NULL);
-        lvfi.lParam = (LPARAM) ((PBUILDING) lpar)->pPrm;
+        id = (ULONG) ((PBUILDING) lpar)->pPrm->dwNum;
+        GuiSwitch(hWnd, GS_PRM, StrFmt(L"\"+&%lu\"", id));
         break;
     case GS_ROM:
-        GuiSwitch(hWnd, GS_BLD, NULL);
-        lvfi.lParam = (LPARAM) ((PROOM) lpar)->pBld;
+        id = (ULONG) ((PROOM) lpar)->pBld->dwNum;
+        GuiSwitch(hWnd, GS_BLD, StrFmt(L"\"+&%lu\"", id));
         break;
-    }
-    int n = ListView_FindItem(s_gtCur->hWndLv, -1, &lvfi);
-    if (n != -1) {
-        ListView_EnsureVisible(s_gtCur->hWndLv, n, FALSE);
-        ListView_SetItemState(s_gtCur->hWndLv, n,
-            LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
     }
 }
 
 void OnCmdPmAncient(HWND hWnd) {
     LPARAM lpar = CurItem();
-    LVFINDINFOW lvfi;
-    lvfi.flags = LVFI_PARAM;
+    ULONG id;
     switch (s_gtCur->gs) {
     case GS_PRM:
         return;
     case GS_BLD:
         return;
     case GS_ROM:
-        GuiSwitch(hWnd, GS_PRM, NULL);
-        lvfi.lParam = (LPARAM) ((PROOM) lpar)->pBld->pPrm;
+        id = (ULONG) ((PROOM) lpar)->pBld->pPrm->dwNum;
+        GuiSwitch(hWnd, GS_PRM, StrFmt(L"\"+&%lu\"", id));
         break;
-    }
-    int n = ListView_FindItem(s_gtCur->hWndLv, -1, &lvfi);
-    if (n != -1) {
-        ListView_EnsureVisible(s_gtCur->hWndLv, n, FALSE);
-        ListView_SetItemState(s_gtCur->hWndLv, n,
-            LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
     }
 }
 
@@ -1201,10 +1169,7 @@ INT_PTR CALLBACK DlgRomProc(HWND hWndDlg, UINT msg,
     DWORD dwNum;
     WSTR szType;
     double dArea;
-    double dShared;
     double dPrice;
-    DWORD dwUnit;
-    DWORD dwFloor;
     HRESULT hr;
     switch (msg) {
     case WM_INITDIALOG:
@@ -1217,10 +1182,7 @@ INT_PTR CALLBACK DlgRomProc(HWND hWndDlg, UINT msg,
             DlgTextSet(IDC_DLGROM_ENUM, StrFmt(L"%lu", (ULONG) pRom->dwNum));
             DlgTextSet(IDC_DLGROM_ETYP, pRom->szType);
             DlgTextSet(IDC_DLGROM_EARE, StrFmt(L"%.2f", pRom->dArea));
-            DlgTextSet(IDC_DLGROM_ESHR, StrFmt(L"%.2f", pRom->dShared));
             DlgTextSet(IDC_DLGROM_EPRI, StrFmt(L"%.2f", pRom->dPrice));
-            DlgTextSet(IDC_DLGROM_EUNT, StrFmt(L"%lu", (ULONG) pRom->dwUnit));
-            DlgTextSet(IDC_DLGROM_EFLR, StrFmt(L"%lu", (ULONG) pRom->dwFloor));
         }
         return TRUE;
     case WM_COMMAND:
@@ -1229,15 +1191,11 @@ INT_PTR CALLBACK DlgRomProc(HWND hWndDlg, UINT msg,
             DiDword(IDC_DLGROM_ENUM, IDS_DLGROM_TNUM, dwNum);
             DiString(IDC_DLGROM_ETYP, IDS_DLGROM_TTYP, szType);
             DiNndbl(IDC_DLGROM_EARE, IDS_DLGROM_TARE, dArea);
-            DiNndbl(IDC_DLGROM_ESHR, IDS_DLGROM_TSHR, dShared);
             DiNndbl(IDC_DLGROM_EPRI, IDS_DLGROM_TPRI, dPrice);
-            DiDword(IDC_DLGROM_EUNT, IDS_DLGROM_TUNT, dwUnit);
-            DiDword(IDC_DLGROM_EFLR, IDS_DLGROM_TFLR, dwFloor);
             hr = pGds->bIsAdd ?
-                ObjAddRom(dwNum, szType, dArea, dShared, dPrice,
-                dwUnit, dwFloor, (PBUILDING) pGds->lpar) :
-                ObjModRom((PROOM) pGds->lpar, dwNum, szType, dArea, dShared,
-                dPrice, dwUnit, dwFloor);
+                ObjAddRom(dwNum, szType, dArea, dPrice,
+                (PBUILDING) pGds->lpar) :
+                ObjModRom((PROOM) pGds->lpar, dwNum, szType, dArea, dPrice);
 
             switch (hr) {
             case S_OK:

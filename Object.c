@@ -14,7 +14,7 @@ PPREMISES   g_pPrmHead = NULL;
 PBUILDING   g_pBldHead = NULL;
 PROOM       g_pRomHead = NULL;
 
-int ObjCmpNndbl(LPARAM pLhs, LPARAM pRhs, LPARAM lpar) {
+int CALLBACK ObjCmpNndbl(LPARAM pLhs, LPARAM pRhs, LPARAM lpar) {
     PCMPINFO pci = (PCMPINFO) lpar;
     int nRes = pci->nReverse;
     double lhs = *(double *) (pLhs + pci->uOffset);
@@ -23,21 +23,21 @@ int ObjCmpNndbl(LPARAM pLhs, LPARAM pRhs, LPARAM lpar) {
     return dlt > 1e-8 ? nRes * 1 : dlt < -1e-8 ? nRes * -1 : 0;
 }
 
-int ObjCmpDword(LPARAM pLhs, LPARAM pRhs, LPARAM lpar) {
+int CALLBACK ObjCmpDword(LPARAM pLhs, LPARAM pRhs, LPARAM lpar) {
     PCMPINFO pci = (PCMPINFO) lpar;
     DWORD lhs = *(PDWORD) (pLhs + pci->uOffset);
     DWORD rhs = *(PDWORD) (pRhs + pci->uOffset);
     return pci->nReverse * (int) (lhs - rhs);
 }
 
-int ObjCmpNtstr(LPARAM pLhs, LPARAM pRhs, LPARAM lpar) {
+int CALLBACK ObjCmpNtstr(LPARAM pLhs, LPARAM pRhs, LPARAM lpar) {
     PCMPINFO pci = (PCMPINFO) lpar;
     PCWSTR lhs = (PCWSTR) (pLhs + pci->uOffset);
     PCWSTR rhs = (PCWSTR) (pRhs + pci->uOffset);
     return pci->nReverse * lstrcmpW(lhs, rhs);
 }
 
-int ObjCmpDwLv2(LPARAM pLhs, LPARAM pRhs, LPARAM lpar) {
+int CALLBACK ObjCmpDwLv2(LPARAM pLhs, LPARAM pRhs, LPARAM lpar) {
     PCMPINFO pci = (PCMPINFO) lpar;
     char *lhs1 = *(char **) (pLhs + pci->uOffset);
     char *rhs1 = *(char **) (pRhs + pci->uOffset);
@@ -46,7 +46,7 @@ int ObjCmpDwLv2(LPARAM pLhs, LPARAM pRhs, LPARAM lpar) {
     return pci->nReverse * (int) (lhs - rhs);
 }
 
-int ObjCmpDwLv3(LPARAM pLhs, LPARAM pRhs, LPARAM lpar) {
+int CALLBACK ObjCmpDwLv3(LPARAM pLhs, LPARAM pRhs, LPARAM lpar) {
     PCMPINFO pci = (PCMPINFO) lpar;
     char *lhs1 = *(char **) (pLhs + pci->uOffset);
     char *rhs1 = *(char **) (pRhs + pci->uOffset);
@@ -232,10 +232,7 @@ static inline BOOL LoadRoms(HANDLE hf) {
         GetDword(hf, &p->dwNum);
         GetNtstr(hf, p->szType);
         GetNndbl(hf, &p->dArea);
-        GetNndbl(hf, &p->dShared);
         GetNndbl(hf, &p->dPrice);
-        GetDword(hf, &p->dwUnit);
-        GetDword(hf, &p->dwFloor);
         DWORD dwPNum;
         GetDword(hf, &dwPNum);
         PBUILDING pp = g_pBldHead->pNext;
@@ -330,10 +327,7 @@ static inline void SaveRoms(HANDLE hf) {
         PutDword(hf, p->dwNum);
         PutNtstr(hf, p->szType);
         PutNndbl(hf, p->dArea);
-        PutNndbl(hf, p->dShared);
         PutNndbl(hf, p->dPrice);
-        PutDword(hf, p->dwUnit);
-        PutDword(hf, p->dwFloor);
         PutDword(hf, p->pBld->dwNum);
         p = p->pNext;
     }
@@ -402,16 +396,12 @@ static inline void BldFill(PBUILDING pBld, DWORD dwNum, PCWSTR pszName,
 }
 
 static inline void RomFill(PROOM pRom, DWORD dwNum, PCWSTR pszType,
-    double dArea, double dShared, double dPrice,
-    DWORD dwUnit, DWORD dwFloor)
+    double dArea, double dPrice)
 {
     pRom->dwNum = dwNum;
     StringCchCopyW(pRom->szType, WSTR_MAXLEN, pszType);
     pRom->dArea = dArea;
-    pRom->dShared = dShared;
     pRom->dPrice = dPrice;
-    pRom->dwUnit = dwUnit;
-    pRom->dwFloor = dwFloor;
 }
 
 HRESULT ObjAddPrm(DWORD dwNum, PCWSTR pszName, PCWSTR pszAddress,
@@ -449,8 +439,8 @@ HRESULT ObjAddBld(DWORD dwNum, PCWSTR pszName, DWORD dwUnits,
     return S_OK;
 }
 
-HRESULT ObjAddRom(DWORD dwNum, PCWSTR pszType, double dArea, double dShared,
-    double dPrice, DWORD dwUnit, DWORD dwFloor, PBUILDING pBld)
+HRESULT ObjAddRom(DWORD dwNum, PCWSTR pszType, double dArea,
+    double dPrice, PBUILDING pBld)
 {
     PROOM pHint = RomFindHint(dwNum);
     if (!pHint)
@@ -458,8 +448,7 @@ HRESULT ObjAddRom(DWORD dwNum, PCWSTR pszType, double dArea, double dShared,
     PROOM pRom = (PROOM) MAlloc(sizeof(ROOM));
     if (!pRom)
         return OBJ_E_MEM;
-    RomFill(pRom, dwNum, pszType, dArea, dShared, dPrice,
-        dwUnit, dwFloor);
+    RomFill(pRom, dwNum, pszType, dArea, dPrice);
     pRom->pBld = pBld;
     LlIns(pRom, pHint);
     ++pBld->dwRoms;
@@ -550,8 +539,7 @@ HRESULT ObjModBld(PBUILDING pBld, DWORD dwNum, PCWSTR pszName,
 }
 
 HRESULT ObjModRom(PROOM pRom, DWORD dwNum, PCWSTR pszType,
-    double dArea, double dShared, double dPrice,
-    DWORD dwUnit, DWORD dwFloor)
+    double dArea, double dPrice)
 {
     PROOM pSaved = pRom->pNext;
     LlRmv(pRom);
@@ -560,8 +548,7 @@ HRESULT ObjModRom(PROOM pRom, DWORD dwNum, PCWSTR pszType,
         LlIns(pRom, pSaved);
         return OBJ_E_NUM;
     }
-    RomFill(pRom, dwNum, pszType, dArea, dShared, dPrice,
-        dwUnit, dwFloor);
+    RomFill(pRom, dwNum, pszType, dArea, dPrice);
     LlIns(pRom, pHint);
     return S_OK;
 }

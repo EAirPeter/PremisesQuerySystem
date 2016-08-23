@@ -64,10 +64,7 @@ struct tagROOM_ {
     DWORD       dwNum;      // The number
     WSTR        szType;     // The type
     double      dArea;      // The area
-    double      dShared;    // The shared area
     double      dPrice;     // The price
-    DWORD       dwUnit;     // The number of the unit
-    DWORD       dwFloor;    // The floor
     // Room - Structural
     PBUILDING   pBld;       // The parent premises
 };
@@ -80,11 +77,11 @@ struct tagCMPINFO_ {
 };
 
 // Comparators
-int ObjCmpNndbl(LPARAM pLhs, LPARAM pRhs, LPARAM lpar);
-int ObjCmpDword(LPARAM pLhs, LPARAM pRhs, LPARAM lpar);
-int ObjCmpNtstr(LPARAM pLhs, LPARAM pRhs, LPARAM lpar);
-int ObjCmpDwLv2(LPARAM pLhs, LPARAM pRhs, LPARAM lpar);
-int ObjCmpDwLv3(LPARAM pLhs, LPARAM pRhs, LPARAM lpar);
+int CALLBACK ObjCmpNndbl(LPARAM pLhs, LPARAM pRhs, LPARAM lpar);
+int CALLBACK ObjCmpDword(LPARAM pLhs, LPARAM pRhs, LPARAM lpar);
+int CALLBACK ObjCmpNtstr(LPARAM pLhs, LPARAM pRhs, LPARAM lpar);
+int CALLBACK ObjCmpDwLv2(LPARAM pLhs, LPARAM pRhs, LPARAM lpar);
+int CALLBACK ObjCmpDwLv3(LPARAM pLhs, LPARAM pRhs, LPARAM lpar);
 
 // Return values other than S_OK for ObjAdd functions and ObjMod functions
 enum OBJECTS_HRESULT_ERRORS_ {
@@ -113,8 +110,8 @@ HRESULT ObjAddBld(DWORD dwNum, PCWSTR pszName, DWORD dwUnits,
     DWORD dwFloors, PPREMISES pPrm);
 
 // Adds a room.
-HRESULT ObjAddRom(DWORD dwNum, PCWSTR pszType, double dArea, double dShared,
-    double dPrice, DWORD dwUnit, DWORD dwFloor, PBUILDING pBld);
+HRESULT ObjAddRom(DWORD dwNum, PCWSTR pszType, double dArea,
+    double dPrice, PBUILDING pBld);
 
 // Removes a premises.
 void ObjRmvPrm(PPREMISES pPrm);
@@ -135,7 +132,6 @@ HRESULT ObjModBld(PBUILDING pBld, DWORD dwNum, PCWSTR pszName,
 
 // Modifies a room.
 HRESULT ObjModRom(PROOM pRom, DWORD dwNum, PCWSTR pszType,
-    double dArea, double dShared, double dPrice,
-    DWORD dwUnit, DWORD dwFloor);
+    double dArea, double dPrice);
 
 #endif // ifndef PQS_OBJECTS_H_
